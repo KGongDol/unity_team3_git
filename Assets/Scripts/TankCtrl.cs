@@ -8,13 +8,17 @@ public class TankCtrl : MonoBehaviour
     // 기본 탱크 정보 변수
     TankType m_Type = TankType.Normal;      // 탱크타입
     float moveVelocity = 10.0f;             // 이동속도
+<<<<<<< HEAD
     float atk = 0.0f;                       // 공격력
+=======
+>>>>>>> upstream/main
     float attRate = 0.0f;                   // 공격 속도
     float curHp = 0.0f;                     // 현재체력
     float maxHp = 0.0f;                     // 최대체력
     float skillCool = 0.0f;                 // 스킬 쿨타임
     // 기본 탱크 정보 변수
 
+<<<<<<< HEAD
     GameObject target_Obj;                  // 타겟 오브젝트 저장
     Vector3 tank_Pos = Vector3.zero;        // 탱크의 좌료 저장
     Vector3 target_Pos = Vector3.zero;      // 타겟의 좌표 저장
@@ -25,6 +29,17 @@ public class TankCtrl : MonoBehaviour
     float turn_Speed = 10.0f;   // 포탑 회전 속도
     public GameObject turret_Obj = null;  // 포탑 오브젝트
     public GameObject fire_Pos = null;  // 발사 위치 오브젝트
+=======
+    public GameObject target_Obj;                  // 타겟 오브젝트 저장
+    Vector3 tank_Pos = Vector3.zero;        // 탱크의 좌료 저장
+    Vector3 target_Pos = Vector3.zero;      // 타겟의 좌표 저장
+    public List<GameObject> target_List = new List<GameObject>();  // 타겟 목록 저장
+    float att_Delay = 0.0f;                 // 공격 딜레이 타이머
+    float skill_Delay = 0.0f;               // 스킬 딜레이 타이머
+    float turn_Speed = 10.0f;               // 포탑 회전 속도
+    public GameObject turret_Obj = null;    // 포탑 오브젝트
+    public GameObject fire_Pos = null;      // 발사 위치 오브젝트
+>>>>>>> upstream/main
     public GameObject bullet_Obj = null;    // 총알 오브젝트
     public GameObject turret_Explo = null;  // 발사 이펙트 오브젝트
     public Transform machineGun_Pos = null; // 기관총 발사 포지션
@@ -62,12 +77,29 @@ public class TankCtrl : MonoBehaviour
 
     void Start()
     {
+<<<<<<< HEAD
         Init(); // 탱크 기본정보 초기화
+=======
+        // 탱크 기본정보 받아오기
+        tankInfo = GetComponent<TankInfo>();
+        tankInfo.TankInit();
+        m_Type = tankInfo.m_Type;
+        moveVelocity = tankInfo.speed;
+        attRate = tankInfo.attRate;
+        maxHp = tankInfo.maxHp;
+        curHp = maxHp;
+        skillCool = tankInfo.skillCool;
+        // 탱크 기본정보 받아오기
+>>>>>>> upstream/main
 
         movePath = new NavMeshPath();
         navAgent = this.gameObject.GetComponent<NavMeshAgent>();
         navAgent.updateRotation = false;
+<<<<<<< HEAD
         SetDestination(beginTarPos.position); // 최초 목적지 설정
+=======
+        //SetDestination(beginTarPos.position); // 최초 목적지 설정
+>>>>>>> upstream/main
     }
 
     void Update()
@@ -100,9 +132,16 @@ public class TankCtrl : MonoBehaviour
             turret_Obj.transform.localEulerAngles = new Vector3(0.0f, turret_Obj.transform.localEulerAngles.y, 0.0f);
 
         }
+<<<<<<< HEAD
         NavUpdate(); // 길찾기
+=======
+        //NavUpdate(); // 길찾기
+>>>>>>> upstream/main
         Attack();
+        Repair(20); // 리페어 탱크인 경우에만 실행
+    }
 
+<<<<<<< HEAD
         // 유닛 특성 관련 함수
         Repair(20); // 리페어 탱크인 경우에만 실행
         MachineGun(); // Speed 타입 차량의 기관총
@@ -127,6 +166,12 @@ public class TankCtrl : MonoBehaviour
     {
         curHp -= a_Damage;
 
+=======
+    void TakeDamage(int a_Damage)
+    {
+        curHp -= a_Damage;
+
+>>>>>>> upstream/main
         if (curHp < 0)
             curHp = 0;
     }
@@ -155,21 +200,21 @@ public class TankCtrl : MonoBehaviour
         if (att_Delay > 0.0f)
             return;
 
-        float[] target_Dist = new float[target_List.Count];
-
-        for(int ii = 0; ii < target_List.Count;)
+        List<float> target_Dist = new List<float>();
+        
+        for (int ii = 0; ii < target_List.Count;)
         {
             if (target_List[ii] == null)    // 타겟 리스트의 값이 null 인지 확인
             {
                 target_List.Remove(target_List[ii]);    // null 값이 저장되어 있으면 지우기
 
-                if(target_List.Count <= 0)  // null 값을 지워서 리스트가 비어있으면 함수를 빠져 나감
+                if (target_List.Count <= 0)  // null 값을 지워서 리스트가 비어있으면 함수를 빠져 나감
                     return;
             }
             else
             {
                 float dis = Vector3.Distance(tank_Pos, target_List[ii].transform.position);
-                target_Dist[ii] = dis;
+                target_Dist.Add(dis);
                 ii++;
             }
         }
@@ -188,22 +233,41 @@ public class TankCtrl : MonoBehaviour
 
     #endregion
 
-    #region ---------- 사정거리 충돌 체크
 
-    public void OnTriggerEnter(Collider coll)
+
+    // 유닛 스킬 구현 부분 ------------------------------------------------------------------------------------------------------------------------------
+    void Repair(int repairValue)
     {
-        if (coll.tag.Contains("Enemy") == true)
+        if (m_Type != TankType.Repair)  // 탱크 타입 검사
+            return;
+
+        if (skill_Delay > 0.0)          // 스킬 딜레이 검사
+            return;
+
+        float skillRange = 5.0f; // 스킬범위 (임시)
+        
+        GameObject[] allyObjs = GameObject.FindGameObjectsWithTag("Tank"); // 아군 탱크들을 찾음
+        
+        for(int i =0; i<allyObjs.Length; i++)
         {
-            target_List.Add(coll.gameObject);
+            if (allyObjs[i] == gameObject) // 자기자신은 치료하지 않음
+                continue;
+
+            if ((allyObjs[i].transform.position - transform.position).magnitude < skillRange) // 스킬 범위 내에 있는지 검사
+            {
+                allyObjs[i].GetComponent<TankCtrl>().curHp += repairValue; // 체력 회복
+                Debug.Log(allyObjs[i].name + "을 " + repairValue + "만큼 수리함");
+            }
         }
+
+        skill_Delay = skillCool;
     }
-
-    public void OnTriggerExit(Collider coll)
+    void Provocation() // 주변의 방어시설들이 자신을 공격하게 만드는 스킬
     {
-        if (coll.tag.Contains("Enemy") == true)
-        {
-            target_List.Remove(coll.gameObject);
+        if (m_Type != TankType.Solid)
+            return;
 
+<<<<<<< HEAD
             if (target_Obj == coll.gameObject)
             {
                 target_Obj = null;
@@ -302,19 +366,38 @@ public class TankCtrl : MonoBehaviour
         Instantiate(turret_Explo, fire_Pos.transform.position, Quaternion.identity);
     }
     #endregion
+=======
+        if (skill_Delay > 0.0)
+            return;
+
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Tower"); // 방어시설들을 찾음
+        
+        for(int i =0; i < enemies.Length; i++) // 방어시설의 공격거리보다 가까우면 자신을 공격하게 만듦.
+        {
+            // Tower tower = enemies[i].GetComponenet<Tower>();
+            //if((enemies[i].transform.position - transform.position).magnitude < tower.attRange)
+            //{
+            //    tower.target = this.gameObject;
+            //}
+        }
+
+    }
+
+    // 유닛 스킬 구현 부분 ------------------------------------------------------------------------------------------------------------------------------
+>>>>>>> upstream/main
 
     #region ---------- 배열의 최소값 체크 (제일 가까운 적 체크 용)
 
-    void GetMinCheck(float[] a_Array, out int a_Min)
+    void GetMinCheck(List<float> a_List, out int a_Min)
     {
-        float min = a_Array[0];
+        float min = a_List[0];
         a_Min = 0;
 
-        for(int ii = 0; ii < a_Array.Length; ii++)
+        for(int ii = 0; ii < a_List.Count; ii++)
         {
-            if (min > a_Array[ii])
+            if (min > a_List[ii])
             {
-                min = a_Array[ii];
+                min = a_List[ii];
                 a_Min = ii;
             }
         }
@@ -356,6 +439,7 @@ public class TankCtrl : MonoBehaviour
             isMoveOn = MoveToPath(); // 도착한 경우 false 리턴
         }
     }
+<<<<<<< HEAD
 
     public bool MyNavCalcPath(Vector3 a_StartPos, Vector3 a_TargetPos, ref float a_PathLen)
     {
@@ -427,6 +511,79 @@ public class TankCtrl : MonoBehaviour
     {
         isSuccessed = true;
 
+=======
+
+    public bool MyNavCalcPath(Vector3 a_StartPos, Vector3 a_TargetPos, ref float a_PathLen)
+    {
+        // 경로 탐색 함수
+        // 피킹이 발생된 상황이므로 초기화 하고 계산한다.
+        movePath.ClearCorners(); // 경로 모두 제거
+        curPathIndex = 1;        // 진행 인덱스 초기화
+        pathEndPos = transform.position;
+
+        if (navAgent == null || navAgent.enabled == false)
+        {
+            return false;
+        }
+
+        if (NavMesh.CalculatePath(a_StartPos, a_TargetPos, -1, movePath) == false)
+        {
+            // CalculatePath() 함수 계산이 끝나고 정상적으로 instance.final
+            // 즉, 목적지까지 계산에 도달했다는 뜻
+            // --> p.status == UnityEngine.AI.NavMeshPathStatus.PathComplete
+            // 그럴 때, 정상적으로 타겟으로 설정해준다.는 뜻
+            // 길찾기 실패 했을 때 점프하는 경향이 있다.
+            Debug.Log("여기서 걸림");
+            NavMeshHit hit;
+
+            if (NavMesh.SamplePosition(a_TargetPos, out hit, 1.0f, NavMesh.AllAreas))
+            // 갈 수 없는 위치를 전달했을 경우 갈 수 있는 가장 가까운 위치로 루트 검색
+            {
+                a_TargetPos = hit.position;
+                MyNavCalcPath(a_StartPos, a_TargetPos, ref a_PathLen);
+                // Debug.DrawRay(a_TargetPos, Vector3.up, Color.red, 100.0f);
+            }
+        }
+
+        if (movePath.corners.Length < 2)
+            return false;
+
+        for (int i = 1; i < movePath.corners.Length; ++i)
+        {
+#if UNITY_EDITOR
+            //맨마지막 인자(duration 라인을 표시하는 시간
+            //Debug.DrawLine(movePath.corners[i], movePath.corners[i] + Vector3.up * i, Color.cyan, 100.0f);
+#endif
+            m_VecLen = movePath.corners[i] - movePath.corners[i - 1];
+            m_VecLen.y = 0.0f;
+            a_PathLen = a_PathLen + m_VecLen.magnitude;
+        }
+
+        if (a_PathLen <= 0.0f)
+            return false;
+
+        // 주인공이 마지막 위치에 도달했을 때 정확한 방향을 바라보게 하고 싶은 경우 때문에 계산해 놓는다.
+        pathEndPos = movePath.corners[(movePath.corners.Length - 1)];
+
+        return true;
+    }
+
+    // MoveToPath 관련 변수
+    bool isSuccessed = true;
+    Vector3 curCPos = Vector3.zero;
+    Vector3 cacDestV = Vector3.zero;
+    Vector3 targetDir;
+    float cacSpeed = 0.0f;
+    float nowStep = 0.0f;
+    Vector3 velocity = Vector3.zero;
+    Vector3 vTowardNom = Vector3.zero;
+    int oldPathCount = 0;
+
+    public bool MoveToPath(float overSpeed = 1.0f)
+    {
+        isSuccessed = true;
+
+>>>>>>> upstream/main
         if (movePath == null)
         {
             movePath = new NavMeshPath();

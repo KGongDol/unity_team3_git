@@ -1,5 +1,13 @@
 fileFormatVersion: 2
+<<<<<<< HEAD
 guid: caa0b2c1f1f9d384ea818a152cd3cdb5
+=======
+<<<<<<< HEAD:Assets/Resources/ExplosionParticle/Explosions/HDRP and URP patches.meta
+guid: d99eacd42e0ee5d48aeb404ca5a833a6
+=======
+guid: 6af64b2c63b77174b8b37a7391574ac0
+>>>>>>> upstream/main:Assets/Resources/GuggiResources.meta
+>>>>>>> upstream/main
 folderAsset: yes
 DefaultImporter:
   externalObjects: {}

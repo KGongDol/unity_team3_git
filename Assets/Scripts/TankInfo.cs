@@ -16,14 +16,21 @@ public class TankInfo : MonoBehaviour
     public TankType m_Type = TankType.Normal;
     public float maxHp;   // 최대체력
     public float speed;   // 이동속도
+<<<<<<< HEAD
     public float atk;     // 공격력
     public float attRate; // 공격속도
     public float skillCool; // 스킬 쿨타임
     
+=======
+    public float attRate; // 공격속도
+    public float skillCool; // 스킬 쿨타임
+
+>>>>>>> upstream/main
     public void TankInit() // 탱크의 기본정보 세팅
     {
         switch(m_Type)
         { 
+<<<<<<< HEAD
             case TankType.Normal: // 일반차량
                 {
                     maxHp = 100.0f;
@@ -58,6 +65,41 @@ public class TankInfo : MonoBehaviour
                     atk = 3.0f;
                     attRate = 4.0f;
                     skillCool = 5.0f;
+=======
+            case TankType.Normal:
+                {
+                    maxHp = 100.0f;
+                    speed = 5.0f;
+                    attRate = 0.5f;
+                    skillCool = 5.0f;
+                    break;
+                }
+            case TankType.Speed:
+                {
+                    maxHp = 70.0f;
+                    speed = 10.0f;
+                    attRate = 1.5f;
+                    skillCool = 5.0f;
+
+                    break;
+                }
+            case TankType.Repair:
+                {
+                    maxHp = 80.0f;
+                    speed = 5.0f;
+                    attRate = 3.0f;
+                    skillCool = 5.0f;
+
+                    break;
+                }
+            case TankType.Solid:
+                {
+                    maxHp = 200.0f;
+                    speed = 2.0f;
+                    attRate = 4.0f;
+                    skillCool = 5.0f;
+
+>>>>>>> upstream/main
                     break;
                 }
         }
