@@ -8,6 +8,7 @@ public class TankCtrl : MonoBehaviour
     // 기본 탱크 정보 변수
     TankType m_Type = TankType.Normal;      // 탱크타입
     float moveVelocity = 10.0f;             // 이동속도
+    float atk = 0.0f;                       // 공격력
     float attRate = 0.0f;                   // 공격 속도
     float curHp = 0.0f;                     // 현재체력
     float maxHp = 0.0f;                     // 최대체력
@@ -26,7 +27,7 @@ public class TankCtrl : MonoBehaviour
     public GameObject fire_Pos = null;  // 발사 위치 오브젝트
     public GameObject bullet_Obj = null;    // 총알 오브젝트
     public GameObject turret_Explo = null;  // 발사 이펙트 오브젝트
-
+    public Transform machineGun_Pos = null; // 기관총 발사 포지션
     float h, v;
 
     // </ 길찾기
@@ -61,16 +62,7 @@ public class TankCtrl : MonoBehaviour
 
     void Start()
     {
-        // 탱크 기본정보 받아오기
-        tankInfo = GetComponent<TankInfo>();
-        tankInfo.TankInit();
-        m_Type = tankInfo.m_Type;
-        moveVelocity = tankInfo.speed;
-        attRate = tankInfo.attRate;
-        maxHp = tankInfo.maxHp;
-        curHp = maxHp;
-        skillCool = tankInfo.skillCool;
-        // 탱크 기본정보 받아오기
+        Init(); // 탱크 기본정보 초기화
 
         movePath = new NavMeshPath();
         navAgent = this.gameObject.GetComponent<NavMeshAgent>();
@@ -110,7 +102,25 @@ public class TankCtrl : MonoBehaviour
         }
         NavUpdate(); // 길찾기
         Attack();
+
+        // 유닛 특성 관련 함수
         Repair(20); // 리페어 탱크인 경우에만 실행
+        MachineGun(); // Speed 타입 차량의 기관총
+    }
+
+    void Init()
+    {
+        // 탱크 기본정보 받아오기
+        tankInfo = GetComponent<TankInfo>();
+        tankInfo.TankInit();
+        m_Type = tankInfo.m_Type;
+        atk = tankInfo.atk;
+        moveVelocity = tankInfo.speed;
+        attRate = tankInfo.attRate;
+        maxHp = tankInfo.maxHp;
+        curHp = maxHp;
+        skillCool = tankInfo.skillCool;
+        // 탱크 기본정보 받아오기
     }
 
     void TakeDamage(int a_Damage)
@@ -248,6 +258,48 @@ public class TankCtrl : MonoBehaviour
             //}
         }
 
+    }
+
+    void MachineGun() // 스피드차량 타입의 기관총
+    {
+        if (m_Type != TankType.Speed)
+            return;
+
+        if (skill_Delay > 0.0)
+            return;
+
+        if (target_List.Count <= 0)
+            return;
+
+        float[] target_Dist = new float[target_List.Count];
+
+        for (int ii = 0; ii < target_List.Count;)
+        {
+            if (target_List[ii] == null)    // 타겟 리스트의 값이 null 인지 확인
+            {
+                target_List.Remove(target_List[ii]);    // null 값이 저장되어 있으면 지우기
+                if (target_List.Count <= 0)  // null 값을 지워서 리스트가 비어있으면 함수를 빠져 나감
+                    return;
+            }
+            else
+            {
+                float dis = Vector3.Distance(tank_Pos, target_List[ii].transform.position);
+                target_Dist[ii] = dis;
+                ii++;
+            }
+        }
+
+        int target_Index = 0;
+        GetMinCheck(target_Dist, out target_Index);
+
+        target_Obj = target_List[target_Index];
+        target_Pos = target_Obj.transform.position;
+        target_Pos.y = 0.0f;
+        skill_Delay = skillCool;
+        
+        GameObject bullet = Instantiate(bullet_Obj, machineGun_Pos.position, Quaternion.identity);
+        bullet.GetComponent<BulletCtrl>().target_Obj = target_Obj;
+        Instantiate(turret_Explo, fire_Pos.transform.position, Quaternion.identity);
     }
     #endregion
 

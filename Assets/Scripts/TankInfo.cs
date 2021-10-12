@@ -39,7 +39,7 @@ public class TankInfo : MonoBehaviour
                     speed = 10.0f;
                     atk = 2.0f;
                     attRate = 0.5f;
-                    skillCool = 5.0f;
+                    skillCool = 2.0f;
                     break;
                 }
             case TankType.Repair: // 다른 탱크를 수리하는 차량
